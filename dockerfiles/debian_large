@@ -6,6 +6,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils gcc \
 	patch wamerican ucf manpages \
 	file luajit make lua50 dialog curl \
 	less cowsay netcat-openbsd
+# Rust install
+ENV RUST_HOME /usr/local/lib/rust
+ENV RUSTUP_HOME ${RUST_HOME}/rustup
+ENV CARGO_HOME ${RUST_HOME}/cargo
+RUN mkdir /usr/local/lib/rust && \
+    chmod 0755 $RUST_HOME
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ${RUST_HOME}/rustup.sh \
+    && chmod +x ${RUST_HOME}/rustup.sh \
+    && ${RUST_HOME}/rustup.sh -y --default-toolchain nightly --no-modify-path
+ENV PATH $PATH:$CARGO_HOME/bin
+# DFX install
+RUN DFX_VERSION=0.15.0-ext.0 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 RUN useradd -m user && echo "user:password" | chpasswd
 COPY --chown=user:user ./examples /home/user/examples
 RUN chmod -R +x  /home/user/examples/lua
